@@ -19,7 +19,7 @@
 setBatchMode(true);
 
 //processFolder(input);
-//separateChannels(input, output, channels);
+separateChannels(input, channels);
 folder = input +"_Processed"+ File.separator + "CH1";
 
 filename = name + suffix;
