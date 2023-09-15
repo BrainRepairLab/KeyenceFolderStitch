@@ -71,7 +71,7 @@ function stitchChannels(folder, name, gridx, gridy, suffix, suffix_new) {
     createDirectory(stitchedFolder);
 
     // Run the stitching command.
-    run("Grid/Collection stitching", "type=[Grid: snake by rows] order=[Right & Down] grid_size_x=" + gridx + " grid_size_y=" + gridy + " tile_overlap=30 first_file_index_i=1 directory=" + folder + " file_names=" + name + suffix_new + suffix + " output_textfile_name=TileConfiguration.txt fusion_method=[Linear Blending] regression_threshold=0.30 max/avg_displacement_threshold=2.50 absolute_displacement_threshold=3.50 compute_overlap subpixel_accuracy computation_parameters=[Save computation time (but use more RAM)] image_output=[Write to disk] output_directory=" + stitchedFolder);
+    run("Grid/Collection stitching", "type=[Grid: snake by rows] order=[Right & Down                ] grid_size_x=" + gridx + " grid_size_y=" + gridy + " tile_overlap=30 first_file_index_i=1 directory=" + folder + " file_names=" + name + suffix_new + suffix + " output_textfile_name=TileConfiguration.txt fusion_method=[Linear Blending] regression_threshold=0.30 max/avg_displacement_threshold=2.50 absolute_displacement_threshold=3.50 compute_overlap subpixel_accuracy computation_parameters=[Save computation time (but use more RAM)] image_output=[Write to disk] output_directory=" + stitchedFolder);
 }
 
 // Utility function to create a directory if it doesn't already exist.
