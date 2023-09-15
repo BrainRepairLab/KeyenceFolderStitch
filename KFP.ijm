@@ -69,6 +69,7 @@ function processChannels(input, suffix_new, procFolder) {
 			saveAs(suffix, destination+ File.separator +list[i]);
 
 
+		}
 	}
 }
 
