@@ -6,7 +6,7 @@
 //#@ File (label = "Output directory", style = "directory") output
 #@ Integer (label = "Nr. of Channels", style = "number" ) channels
 
-#@ String (label = "File Name", value = "250MOIHPBF_XY02_{iiiii}_CH1") name
+#@ String (label = "File Name", value = "250MOIHPBF_XY02_{iiiii}_") name
 #@ String (label = "File suffix", value = ".tif") suffix
 #@ boolean (label = "Stitch?", value = "False") stitch
 #@ Integer (label = "Grid X", style = "number" ) gridx
@@ -19,19 +19,11 @@
 setBatchMode(true);
 
 //processFolder(input);
-separateChannels(input, channels);
+separateChannels(input, channels, stitch);
 folder = input +"_Processed"+ File.separator + "CH1";
 
-filename = name + suffix;
-//print(filename);
-//if (stitch=="True") {
 
-//}
-
-
-
-
-function separateChannels(input, channels) {
+function separateChannels(input, channels, stitch) {
 // function description
 	filename = name + suffix;
 	//Create processing folder
@@ -53,8 +45,10 @@ function separateChannels(input, channels) {
 
 		//Go through all images with current suffix
 		processChannels(input, suffix_new, procFolder);
-		//wait(1000);
-		stitchChannels(zstack_folder, name, gridx, gridy, suffix, suffix_new);
+		if (stitch)
+		{
+			stitchChannels(zstack_folder, name, gridx, gridy, suffix, suffix_new);
+		}
 
 
 	}
@@ -88,6 +82,8 @@ function stitchChannels(folder, name, gridx, gridy, suffix, suffix_new) {
 	File.makeDirectory(stitchedFolder);
 
 	run("Grid/Collection stitching", "type=[Grid: snake by rows] order=[Right & Down                ] grid_size_x="+gridx+" grid_size_y="+gridy+" tile_overlap=30 first_file_index_i=1 directory="+folder+" file_names="+name+suffix_new+suffix+" output_textfile_name=TileConfiguration.txt fusion_method=[Linear Blending] regression_threshold=0.30 max/avg_displacement_threshold=2.50 absolute_displacement_threshold=3.50 compute_overlap subpixel_accuracy computation_parameters=[Save computation time (but use more RAM)] image_output=[Write to disk] output_directory="+stitchedFolder);
+
+
 }
 
 function createDirectory(dir) {
