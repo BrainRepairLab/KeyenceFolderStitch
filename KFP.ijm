@@ -23,8 +23,9 @@ separateChannels(input, channels);
 folder = input +"_Processed"+ File.separator + "CH1";
 
 filename = name + suffix;
+//print(filename);
 //if (stitch=="True") {
-	stitchChannels(folder, filename, gridx, gridy)
+
 //}
 
 
@@ -32,20 +33,28 @@ filename = name + suffix;
 
 function separateChannels(input, channels) {
 // function description
-
+	filename = name + suffix;
 	//Create processing folder
 	procFolder = input +"_Processed";
 	File.makeDirectory(procFolder);
+
 	print("Created folder:"  + procFolder);
 
 	for (i = 1; i <= channels; i++) {
+		// Current channel suffix
 		suffix_new = "CH"+i;
-		//new_folder = (output + File.separator + suffix_new);
-		File.makeDirectory(procFolder + File.separator+suffix_new );
-		print("Created folder:"+procFolder + File.separator + suffix_new);
+		// Folder for a Zstacked individal files 16 bit
+		zstack_folder = procFolder + File.separator + suffix_new;
+
+		createDirectory(zstack_folder);
+		//File.makeDirectory(zstack_folder);
+
+		print("Created folder:"+zstack_folder);
 
 		//Go through all images with current suffix
 		processChannels(input, suffix_new, procFolder);
+		//wait(1000);
+		stitchChannels(zstack_folder, name, gridx, gridy, suffix, suffix_new);
 
 
 	}
@@ -69,14 +78,21 @@ function processChannels(input, suffix_new, procFolder) {
 			saveAs(suffix, destination+ File.separator +list[i]);
 
 
-		}
 	}
 }
+}
 
-function stitchChannels(folder, filename, gridx, gridy) {
+function stitchChannels(folder, name, gridx, gridy, suffix, suffix_new) {
 
 	stitchedFolder = folder+"_stitched";
 	File.makeDirectory(stitchedFolder);
 
-	run("Grid/Collection stitching", "type=[Grid: snake by rows] order=[Right & Down                ] grid_size_x="+gridx+" grid_size_y="+gridy+" tile_overlap=30 first_file_index_i=1 directory="+folder+" file_names="+filename+" output_textfile_name=TileConfiguration.txt fusion_method=[Linear Blending] regression_threshold=0.30 max/avg_displacement_threshold=2.50 absolute_displacement_threshold=3.50 compute_overlap subpixel_accuracy computation_parameters=[Save computation time (but use more RAM)] image_output=[Write to disk] output_directory="+stitchedFolder);
+	run("Grid/Collection stitching", "type=[Grid: snake by rows] order=[Right & Down                ] grid_size_x="+gridx+" grid_size_y="+gridy+" tile_overlap=30 first_file_index_i=1 directory="+folder+" file_names="+name+suffix_new+suffix+" output_textfile_name=TileConfiguration.txt fusion_method=[Linear Blending] regression_threshold=0.30 max/avg_displacement_threshold=2.50 absolute_displacement_threshold=3.50 compute_overlap subpixel_accuracy computation_parameters=[Save computation time (but use more RAM)] image_output=[Write to disk] output_directory="+stitchedFolder);
 }
+
+function createDirectory(dir) {
+    if (!File.isDirectory(dir)) {
+        File.makeDirectory(dir);
+    }
+}
+
