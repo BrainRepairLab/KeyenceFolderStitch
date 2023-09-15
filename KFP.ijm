@@ -5,21 +5,25 @@
 // User-defined input parameters for the script.
 #@ File (label = "Input directory", style = "directory") input
 #@ Integer (label = "Nr. of Channels", style = "number" ) channels
-#@ String (label = "File Name", value = "250MOIHPBF_XY02_{iiiii}_") name
+#@ String (label = "File Name to process", value = "250MOIHPBF_XY02_{iiiii}_") name
+#@ String (label = "Final file name", value = "R01_S1-3-2_Ab1_Ab2") finalname
 #@ String (label = "File suffix", value = ".tif") suffix
-#@ boolean (label = "Stitch?", value = "False") stitch
+#@ boolean (label = "Stitch", value = "False") stitch
+
 #@ Integer (label = "Grid X", style = "number" ) gridx
 #@ Integer (label = "Grid Y", style = "number" ) gridy
+
+#@ boolean (label = "Convert to 8Bit", value = "False") eightbit
 
 // Turn on batch mode for faster processing without UI updates.
 setBatchMode(true);
 
 // Separate channels based on user input.
-separateChannels(input, channels, stitch);
+separateChannels(input, channels, stitch, eightbit, finalname);
 folder = input + "_Processed" + File.separator + "CH1";
 
 // Function to separate the channels of the images.
-function separateChannels(input, channels, stitch) {
+function separateChannels(input, channels, stitch, eightbit, finalname) {
     // Construct the filename from user input.
     filename = name + suffix;
     // Create main processing directory.
@@ -40,7 +44,7 @@ function separateChannels(input, channels, stitch) {
         processChannels(input, suffix_new, procFolder);
         // If user has opted for stitching, execute stitch operation.
         if (stitch) {
-            stitchChannels(zstack_folder, name, gridx, gridy, suffix, suffix_new);
+            stitchChannels(zstack_folder, name, gridx, gridy, suffix, suffix_new, eightbit, finalname);
         }
     }
 }
@@ -65,14 +69,34 @@ function processChannels(input, suffix_new, procFolder) {
 }
 
 // Function to stitch processed images.
-function stitchChannels(folder, name, gridx, gridy, suffix, suffix_new) {
+function stitchChannels(folder, name, gridx, gridy, suffix, suffix_new, eightbit, finalname) {
+
+	// The default name of the stitched file
+	default_name = "img_t1_z1_c1";
+
     // Define folder for stitched output.
     stitchedFolder = folder + "_stitched";
     createDirectory(stitchedFolder);
 
     // Run the stitching command.
     run("Grid/Collection stitching", "type=[Grid: snake by rows] order=[Right & Down                ] grid_size_x=" + gridx + " grid_size_y=" + gridy + " tile_overlap=30 first_file_index_i=1 directory=" + folder + " file_names=" + name + suffix_new + suffix + " output_textfile_name=TileConfiguration.txt fusion_method=[Linear Blending] regression_threshold=0.30 max/avg_displacement_threshold=2.50 absolute_displacement_threshold=3.50 compute_overlap subpixel_accuracy computation_parameters=[Save computation time (but use more RAM)] image_output=[Write to disk] output_directory=" + stitchedFolder);
-}
+
+	if (eightbit) {
+
+		open(stitchedFolder + File.separator + default_name);
+		saveAs(suffix, stitchedFolder + File.separator + finalname + "_" + suffix_new+ "_stitched_16bit");
+
+		run("8-bit");
+		saveAs(suffix, stitchedFolder + File.separator + finalname + "_" + suffix_new+ "_stitched_8bit");
+		File.delete(stitchedFolder + File.separator + default_name);
+
+	}
+	else
+	{
+		open(stitchedFolder + File.separator + default_name);
+		saveAs(suffix, stitchedFolder + File.separator + finalname + "_" + suffix_new+ "_stitched_16bit");
+		File.delete(stitchedFolder + File.separator + default_name);
+	}
 
 // Utility function to create a directory if it doesn't already exist.
 function createDirectory(dir) {
