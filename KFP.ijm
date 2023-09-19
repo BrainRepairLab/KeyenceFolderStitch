@@ -13,18 +13,15 @@
 
 //#@ String (label = "Channel", value = "250MOIHPBF_XY02_{iiiii}_") channel+i
 
-
-
 #@ String (label = "File Name to process", value = "250MOIHPBF_XY02_{iiiii}_") name
 #@ String (label = "Final file name", value = "R01_S1-3-2_Ab1_Ab2") finalname
 #@ String (label = "File suffix", value = ".tif") suffix
-#@ boolean (label = "Separte channels", value = "True") separate
+#@ boolean (label = "Separate channels", value = "True") separate
+#@ Integer (label = "Channel to separate", style = "number" ) separateChannel
 #@ boolean (label = "Stitch", value = "False") stitch
 #@ Integer (label = "Stitch Ch:", style = "number" ) stitch_channel
-
 #@ Integer (label = "Grid X", style = "number" ) gridx
 #@ Integer (label = "Grid Y", style = "number" ) gridy
-
 #@ boolean (label = "Convert to 8Bit", value = "False") eightbit
 
 // Turn on batch mode for faster processing without UI updates.
@@ -33,7 +30,7 @@ setBatchMode(true);
 // Separate channels based on user input.
 if (separate) {
 
-separateChannels(input, channels, stitch, eightbit, finalname);
+separateChannels(input, channels, separateChannel, stitch, eightbit, finalname);
 }
 
 
@@ -63,7 +60,7 @@ if (stitch) {
 
 
 // Function to separate the channels of the images.
-function separateChannels(input, channels, stitch, eightbit, finalname) {
+function separateChannels(input, channels, separateChannel, stitch, eightbit, finalname) {
     // Construct the filename from user input.
     filename = name + suffix;
     // Create main processing directory.
@@ -72,6 +69,14 @@ function separateChannels(input, channels, stitch, eightbit, finalname) {
     print("Created folder:" + procFolder);
 
     // Loop through the channels.
+    if (channels==1) {
+    	suffix_new = "CH" + separateChannel;
+    	zstack_folder = procFolder + File.separator + suffix_new;
+    	createDirectory(zstack_folder);
+    	processChannels(input, suffix_new, procFolder);
+    }
+  	else {
+
     for (i = 1; i <= channels; i++) {
         // Current channel suffix (e.g., CH1, CH2, etc.).
         suffix_new = "CH" + i;
